@@ -1,25 +1,29 @@
 export function pascalToKebab(value: string): string {
-    return value.replace(/([a-z0–9])([A-Z])/g, "$1-$2").toLowerCase();
+    return value.replace(/([a-z0–9])([A-Z])/g, "$1-$2").toLowerCase(); // Ссылки на группы захвата, преобразование в kebab
 }
 
+// Функция проверяет на тип string и использует x как string в случае true
 export function isSelector(x: any): x is string {
     return (typeof x === "string") && x.length > 1;
 }
 
-export function isEmpty(value: any): boolean {
+export function isEmpty(value: any): boolean { // Проверка на пустое значение
     return value === null || value === undefined;
 }
 
+// Дженерик T нужен только в случае массива. А для чего типизировать массив ?
 export type SelectorCollection<T> = string | NodeListOf<Element> | T[];
 
-export function ensureAllElements<T extends HTMLElement>(selectorElement: SelectorCollection<T>, context: HTMLElement = document as unknown as HTMLElement): T[] {
+// T должен быть HTMLElement, но т.к есть вторая типизация с помощью SelectorCollection, то нет ошибки
+export function ensureAllElements<T extends HTMLElement>(selectorElement: SelectorCollection<T>, context: HTMLElement = document as unknown as HTMLElement): T[] {// Всегда HTMLel, а по умолчаиню document, который типизирован принудительно, как HTMLElement 
+    // Проверка (пользовательский guard). Является string, т.к querySelectorAll требует string
     if (isSelector(selectorElement)) {
-        return Array.from(context.querySelectorAll(selectorElement)) as T[];
+        return Array.from(context.querySelectorAll(selectorElement)) as T[]; //
     }
-    if (selectorElement instanceof NodeList) {
-        return Array.from(selectorElement) as T[];
+    if (selectorElement instanceof NodeList) { // Если от NodeList (не явл HtmlCol и др.);
+        return Array.from(selectorElement) as T[]; // Если NodeList, а дженерик extends HTMLElement, поэтому нужно привести
     }
-    if (Array.isArray(selectorElement)) {
+    if (Array.isArray(selectorElement)) { // Если массив, то возвращаем без as, т.к T[] в SelectorCollection совпадаеть будет
         return selectorElement;
     }
     throw new Error(`Unknown selector element`);
@@ -27,8 +31,10 @@ export function ensureAllElements<T extends HTMLElement>(selectorElement: Select
 
 export type SelectorElement<T> = T | string;
 
+// Context может быть или нет, т.к по умолчанию document;
+// Проверка на html element, а в случае, если элементов несколько, то предупреждение;
 export function ensureElement<T extends HTMLElement>(selectorElement: SelectorElement<T>, context?: HTMLElement): T {
-    if (isSelector(selectorElement)) {
+    if (isSelector(selectorElement)) { // Если строковый, то ensureAllElements и возвращаем массив с опредлнными DOM элементами;
         const elements = ensureAllElements<T>(selectorElement, context);
         if (elements.length > 1) {
             console.warn(`selector ${selectorElement} return more then one element`);
@@ -36,19 +42,21 @@ export function ensureElement<T extends HTMLElement>(selectorElement: SelectorEl
         if (elements.length === 0) {
             throw new Error(`selector ${selectorElement} return nothing`);
         }
-        return elements.pop() as T;
+        return elements.pop() as T; // Типизиуем как Т, т.к elements типа T[]. А мы обязаны вернуть HTMLElement не как массив
     }
-    if (selectorElement instanceof HTMLElement) {
-        return selectorElement as T;
+    if (selectorElement instanceof HTMLElement) { //
+        return selectorElement as T; // AS не обязателен, т.к тип и так ясен из логики
     }
     throw new Error('Unknown selector element');
 }
 
+// Утилита принимает строку или темплейт;
 export function cloneTemplate<T extends HTMLElement>(query: string | HTMLTemplateElement): T {
-    const template = ensureElement(query) as HTMLTemplateElement;
+    const template = ensureElement(query) as HTMLTemplateElement; // as вероятно просто для читаемости;
     if (!template.content.firstElementChild) {
         throw new Error(`Template ${query} has no content`);
     }
+    // cloneNode даёт следующе = Element | Null в связи с этим ts не уверен, что будет, поэтому as T;
     return template.content.firstElementChild.cloneNode(true) as T;
 }
 
@@ -61,7 +69,7 @@ export function bem(block: string, element?: string, modifier?: string): { name:
         class: `.${name}`
     };
 }
-
+// prop 
 export function getObjectProperties(obj: object, filter?: (name: string, prop: PropertyDescriptor) => boolean): string[] {
     return Object.entries(
         Object.getOwnPropertyDescriptors(
@@ -136,3 +144,4 @@ export function createElement<
     }
     return element;
 }
+
