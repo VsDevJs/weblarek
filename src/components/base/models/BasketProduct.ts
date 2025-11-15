@@ -1,49 +1,64 @@
 import { IProduct } from '../../../types';
+// Опять же берём наш IProduct
+// Мы берём значение от IProduct
 
-// Extends id требуется поскольку могут создать экземпляр класса и передать другую типизацию;
-// Поэтому для this._listProduct.find(product => id === product.id); требуется extends {id:string}
-class mainCatalog<T extends {id:string}> {
+export class BasketProduct<T extends IProduct> {
 
-    // Выбранная карточка
+  // Массив товаров выбраных покупателем
 
-    private detailedProduct:T | null = null;
-    private _listProduct:T[] = [];
+  private listProduct:T[] = [];
+  
+  // + получение массива товаров, которые находятся в корзине;
 
-    // Сохранение массива товаров полученного в параметрах метода;
+  getlistProduct():T[] {
+    return [...this.listProduct];
+  }
 
-    set listProduct(newList:T[]){
-        this._listProduct = newList;
+  // + добавление товара, который был получен в параметре, в массив корзины;
+
+  addProduct(product:T):void {
+
+    // Если товар отсутствует и также должен иметь прайс!
+
+    if(product.price && !this.existenceProduct(product.id)){ //
+      this.listProduct.push(product);
     }
-
-    // Получение массива товаров из модели
-
-    get listProduct():T[]{
-    
-        // Возвращаем копию, а не ссылку на _listProduct
-        return [...this._listProduct];
+    else {
+      console.log('Товар невозможно добавить');
     }
-
-    set detaileProduct(product:T) { //сохранение товара для подробного отображения;
-        this.detailedProduct  = product;
+  }
+  // + 
+  deleteProduct(product:T):void {
+    // Проверяем, что в массиве нету элемента
+    if (!this.existenceProduct(product.id)) {
+      console.log('Удаление не произошло');
+      return;
     }
+    // Иначе фильтруем и перезаписываем _listProduct
+    this.listProduct = this.listProduct.filter(el=> el.id != product.id);
+  }
 
-    get detaileProduct():T | null { // получение товара для подробного отображения.
-        return this.detailedProduct  ? this.detailedProduct  : null;
-    }
+  // + Полная очистка корзины. Ничего не принимает и просто чистит под 0 массив
+  clearBasket(){
+    this.listProduct = [];
+  }
 
-    // Получение одного товара по его id;
+  // + Получение стоимости всех товаров в корзине
 
-    private getProductById(id:string):T | undefined {
-        
-        // Если является массивом, то мы ищём по id, наш товар
-        if(this._listProduct.length > 0 && Array.isArray(this._listProduct)) {
-            return this._listProduct.find(product => id === product.id);  // Как бы вернуть null;
-        }
-        else {
-            return undefined;
-        }
-    }
+  calculatePrice() {
+    if(this.listProduct.length > 0)
+      return this.listProduct.reduce((ac, el)=> ac + Number(el.price),0);
+  }
+
+  // +
+
+  countProduct() {
+    return this.listProduct.length;
+  }
+
+  // +
+
+  existenceProduct(id:string):boolean {
+    return this.listProduct.some(product => id === product.id);
+  }
 }
-
-// let obj1:IProduct = {id:'',description:'',image:'',title:'',category:'',price:30}; 
-// let obj = new mainCatalog<IProduct>([]);

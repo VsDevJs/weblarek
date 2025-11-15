@@ -1,38 +1,57 @@
 
-import {TPayment} from '../../../types';
+import { IBuyer } from '../../../types';
 
-class Buyer<T> {
-  
+export class Buyer {
+  // + 
   constructor(
-    private payment: TPayment = '',
+    private payment: IBuyer['payment'] = '',
     private email: string = '',
     private phone: string = '',
     private address: string = ''
   ) {}
 
-  private saveData(form:Partial<T>){ // Поступают данные формы (объект)
+// + Нам поступить ничего не может кроме нашего шаблона  IBuyer;
+
+  saveData(form:Partial<IBuyer>){ // Поступают данные формы (объект)
     for(const el in form) {
-      if((this as any)[el] !== form[el as keyof T]) { // Убираем key из нашего, 
-        (this as any)[el] = form[el];
+      if((this as any)[el] !== form[el as keyof IBuyer]) { // Убираем key из нашего, 
+        (this as any)[el] = form[el as keyof IBuyer];
       }
     }
   }
 
-  private saveDatas(form: Partial<T>) {
-  for (const key in form) {
-      if ((this as any)[key] !== form[key as keyof T]) {
-        (this as any)[key] = form[key as keyof T];
+  // +  Вернуть объект всех данных покупателя
+  buyerData(){
+    return { 
+      payment:this.payment, 
+      email:this.email, 
+      phone:this.phone, 
+      address:this.address 
     }
   }
-}
+  // +
+  validate() {
+    const objectValues: IBuyer = this.buyerData();
 
-  // Вернуть объект всех данных покупателя;
-  get buyerData(){
-    return { payment:this.payment, email:this.email, phone:this.phone, address:this.address }
+    const validationRules = {
+      email: (val: string) => val.trim().length > 0 ? true : (validationRules.status = false,'Емейл поле должно быть не пустым!'),
+      phone: (val: string) => val.trim().length > 0 ? true : (validationRules.status = false,'Поле с номером телефона должно быть не пустым!'),
+      address: (val: string) => val.trim().length > 0 ? true : (validationRules.status = false,'Заполните поле с адресом'),
+      payment: (val: string) => val.trim().length > 0 ? true : (validationRules.status = false,'Выбирите способ оплаты'),
+      status:true,
+    };
+
+    const fieldErrors  = Object.fromEntries(Object.keys(objectValues).map((el) => {
+      return [el, (validationRules as any)[el](objectValues[el as keyof IBuyer])];
+    }));
+    return validationRules.status ? 'Валидация полностью корректна' : fieldErrors;
   }
-
-  validateRules(){
-
+  // +
+  clear(): void {
+    this.payment = '';
+    this.email = '';
+    this.phone = '';
+    this.address = '';
   }
 }
 
