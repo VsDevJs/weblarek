@@ -1,15 +1,15 @@
-import { IProduct } from '../../../types';
+import { IProduct } from '../../types';
 
-export class MainCatalog<T extends IProduct> {
+export class MainCatalog {
 
-    private detailedProduct: T | null = null;
-    private listProduct: T[] = [];
+    private detailedProduct: IProduct | null = null;
+    private listProduct: IProduct[] = [];
 
-    setListProduct(newList: T[]) {
+    setListProduct(newList: IProduct[]) {
         this.listProduct = newList;
     }
 
-    getListProduct(): T[] {
+    getListProduct(): IProduct[] {
         return [...this.listProduct];
     }
 
@@ -21,13 +21,13 @@ export class MainCatalog<T extends IProduct> {
             console.log('Продукт отсутствует в списке')
     }
 
-    getDetailedProduct(): T | null {
+    getDetailedProduct(): IProduct | null {
         return this.detailedProduct
             ? this.detailedProduct
             : null;
     }
 
-    getProductById(id: string): T | undefined {
+    getProductById(id: string): IProduct | undefined {
         return this.listProduct.length
             ? this.listProduct.find(product => product.id === id)
             : undefined;

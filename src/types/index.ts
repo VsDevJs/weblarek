@@ -23,19 +23,19 @@ export interface IProduct {
 };
 
 // Получение данных Get 
-export interface getData {
+export interface IProductResponse {
     total: number,
     items: IProduct[],
 };
 
 // Получение ответа от Post
-export interface postGet {
+export interface IOrderResponse {
     id: string,
     total: number,
 }
 
 // Отправка POST
-export interface Post extends IBuyer {
-    payment: TPayment,
-    items: postGet['id'][],
+export interface IRequestOrder extends IBuyer {
+    total:number,
+    items: string[],
 }

@@ -1,13 +1,13 @@
-import { IProduct } from '../../../types';
-export class BasketProduct<T extends IProduct> {
+import { IProduct } from '../../types';
+export class BasketProduct {
 
-  private listProduct: T[] = [];
+  private listProduct: IProduct[] = [];
 
-  getlistProduct(): T[] {
+  getlistProduct(): IProduct[] {
     return [...this.listProduct];
   }
 
-  addProduct(product: T): void {
+  addProduct(product: IProduct): void {
     if (product.price && !this.existenceProduct(product.id)) {
       this.listProduct.push(product);
     }
@@ -16,7 +16,7 @@ export class BasketProduct<T extends IProduct> {
     }
   }
 
-  deleteProduct(product: T): void {
+  deleteProduct(product: IProduct): void {
     if (!this.existenceProduct(product.id)) {
       console.log('Удаление не произошло');
       return;

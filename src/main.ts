@@ -1,21 +1,16 @@
 import './scss/styles.scss';
-import { Buyer } from './components/base/models/Buyer.ts';
-import { BasketProduct } from './components/base/models/BasketProduct.ts';
-import { MainCatalog } from './components/base/models/MainCatalog.ts';
+import { Buyer } from './components/models/Buyer.ts';
+import { BasketProduct } from './components/models/BasketProduct.ts';
+import { MainCatalog } from './components/models/MainCatalog.ts';
 import { apiProducts } from './utils/data.ts';
-import { TApi } from './components/base/models/TApi.ts';
+import { ShopApi } from './components/models/ShopApi.ts';
 import { Api } from './components/base/Api.ts'; 
-import {API_URL} from './utils/constants.ts';
+import { API_URL } from './utils/constants.ts';
 
 // _________Инициализация_________
-
 const buyer = new Buyer();
 const basketProduct = new BasketProduct();
 const mainCatalog = new MainCatalog();
-
-const api = new Api(API_URL);
-const tapi = new TApi(api);
-console.log(tapi);
 
 // _______Модель MainCatalog_______
 
@@ -39,19 +34,19 @@ console.group('Модель ___Buyer___');
 // Проверка конструктора 
 console.log('Проверка конструктора: ',buyer);
 
-// Проверка записи полей методом saveData
-buyer.saveData({payment:'card', email:'fwef@cfwef', phone:'43f34f34',address:"fwreferf"})
+// Проверка записи полей методом setBuyerData
+buyer.setBuyerData({payment:'card'});
 console.log('Проверка записи полей методом saveData', buyer);
 
 // Проверка метода по получению 
-console.log('Получаем данные: ',buyer.buyerData());
+console.log('Получаем данные: ',buyer.getBuyerData());
 
 // Очистка полей с помощью метода clear
 buyer.clear();
-console.log('Проверка, что метод очистки полей сработал:', buyer.buyerData());
+console.log('Проверка, что метод очистки полей сработал:', buyer.getBuyerData());
 
 // Метод проверки валидации полей, возварт объекта с ошибками
-buyer.saveData({payment:'card', email:'', phone:'акуа',address:"аукау"})
+buyer.setBuyerData({payment:'card', email:'', phone:'акуа',address:"аукау"})
 console.log('Объект с ошибками после валидации полей:', buyer.validate());
 
 console.groupEnd();
@@ -86,3 +81,18 @@ console.log('Сейчас в корзине товаров на сумму: ', b
 basketProduct.clearBasket();
 console.log('Результат после очистки корзины методом clearBasket: ', basketProduct.getlistProduct());
 
+// _____Тест API_____
+console.group('__Тестим Api__');
+
+const api = new Api(API_URL);
+const shopApi = new ShopApi(api);
+
+try {
+  // Запись товаров в Модель данных
+  let response  = await shopApi.getProduct();
+  mainCatalog.setListProduct(response.items);
+  console.log('Выыгруженные товары через с сервера', mainCatalog.getListProduct());
+}
+catch(err){
+  console.log('Произошла ошибка при выгрузке товаров', err);
+}
