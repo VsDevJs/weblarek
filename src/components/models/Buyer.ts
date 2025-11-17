@@ -32,11 +32,12 @@ export class Buyer {
     const objectValues: IBuyer = this.getBuyerData();
     let status:boolean = true;
 
+    //
     const validationRules:TFormErrors = {
-      email: (val: string) => val.trim().length > 0 ? true : (status = false, 'Емейл поле должно быть не пустым!'),
-      phone: (val: string) => val.trim().length > 0 ? true : (status = false, 'Поле с номером телефона должно быть не пустым!'),
-      address: (val: string) => val.trim().length > 0 ? true : (status = false, 'Заполните поле с адресом'),
-      payment: (val: string) => val.trim().length > 0 ? true : (status = false, 'Выбирите способ оплаты'),
+      email: (val: string) => val.trim().length > 0 ? '' : (status = false, 'Емейл поле должно быть не пустым!'),
+      phone: (val: string) => val.trim().length > 0 ? '' : (status = false, 'Поле с номером телефона должно быть не пустым!'),
+      address: (val: string) => val.trim().length > 0 ? '' : (status = false, 'Заполните поле с адресом'),
+      payment: (val: string) => val.trim().length > 0 ? '' : (status = false, 'Выбирите способ оплаты'),
     };
 
     const fieldErrors = Object.fromEntries(Object.keys(objectValues).map((el) => {

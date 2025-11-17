@@ -46,7 +46,7 @@ buyer.clear();
 console.log('Проверка, что метод очистки полей сработал:', buyer.getBuyerData());
 
 // Метод проверки валидации полей, возварт объекта с ошибками
-buyer.setBuyerData({payment:'card', email:'', phone:'акуа',address:"аукау"})
+buyer.setBuyerData({payment:'card', email:'ferfr', phone:'акуа',address:"аукау"})
 console.log('Объект с ошибками после валидации полей:', buyer.validate());
 
 console.groupEnd();
