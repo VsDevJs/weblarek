@@ -39,3 +39,6 @@ export interface IRequestOrder extends IBuyer {
     total:number,
     items: string[],
 }
+
+//Тип данных для объекта с ошибками. Ключи полностью соответствуют IBuyer, а значения валидирующим функциям
+export type TFormErrors = Record<keyof IBuyer, (val: string) => boolean | string>;

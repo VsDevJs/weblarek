@@ -1,5 +1,5 @@
 
-import { IBuyer } from '../../types';
+import { IBuyer, TFormErrors } from '../../types';
 
 export class Buyer {
 
@@ -18,7 +18,7 @@ export class Buyer {
     }
   }
 
-  getBuyerData() {
+  getBuyerData():IBuyer {
     return {
       payment: this.payment,
       email: this.email,
@@ -27,22 +27,23 @@ export class Buyer {
     }
   }
 
-  validate() {
+  validate():IBuyer | string {
     const objectValues: IBuyer = this.getBuyerData();
+    
+    let status:Boolean = true;
 
-    const validationRules = {
-      email: (val: string) => val.trim().length > 0 ? true : (validationRules.status = false, 'Емейл поле должно быть не пустым!'),
-      phone: (val: string) => val.trim().length > 0 ? true : (validationRules.status = false, 'Поле с номером телефона должно быть не пустым!'),
-      address: (val: string) => val.trim().length > 0 ? true : (validationRules.status = false, 'Заполните поле с адресом'),
-      payment: (val: string) => val.trim().length > 0 ? true : (validationRules.status = false, 'Выбирите способ оплаты'),
-      status: true,
+    const validationRules:TFormErrors = {
+      email: (val: string) => val.trim().length > 0 ? '' : (status = false, 'Емейл поле должно быть не пустым!'),
+      phone: (val: string) => val.trim().length > 0 ? '' : (status = false, 'Поле с номером телефона должно быть не пустым!'),
+      address: (val: string) => val.trim().length > 0 ? '' : (status = false, 'Заполните поле с адресом'),
+      payment: (val: string) => val.trim().length > 0 ? '' : (status = false, 'Выбирите способ оплаты'),
     };
 
     const fieldErrors = Object.fromEntries(Object.keys(objectValues).map((el) => {
       return [el, (validationRules as any)[el](objectValues[el as keyof IBuyer])];
     }));
-    
-    return validationRules.status ? 'Валидация полностью корректна' : fieldErrors;
+
+    return status ? 'Валидация полностью корректна' : fieldErrors as IBuyer;
   }
 
   clear(): void {
@@ -52,4 +53,3 @@ export class Buyer {
     this.address = '';
   }
 }
-
