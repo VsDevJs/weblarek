@@ -81,6 +81,7 @@ console.log('Сейчас в корзине товаров на сумму: ', b
 basketProduct.clearBasket();
 console.log('Результат после очистки корзины методом clearBasket: ', basketProduct.getlistProduct());
 
+console.groupEnd();
 // _____Тест API_____
 console.group('__Тестим Api__');
 
@@ -89,10 +90,12 @@ const shopApi = new ShopApi(api);
 
 try {
   // Запись товаров в Модель данных
-  let response  = await shopApi.getProduct();
+  const response  = await shopApi.getProduct();
   mainCatalog.setListProduct(response.items);
   console.log('Выыгруженные товары через с сервера', mainCatalog.getListProduct());
 }
 catch(err){
   console.log('Произошла ошибка при выгрузке товаров', err);
 }
+
+console.groupEnd();
