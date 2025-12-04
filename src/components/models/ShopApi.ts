@@ -1,5 +1,6 @@
 import { IApi, IProductResponse, IRequestOrder, IOrderResponse } from '../../types';
 
+// Такой апи необходим для расширения функционала не затрагивая корневой. Можно создать другой например и также использовать корневой
 export class ShopApi {
 
   private httpClient: IApi;

@@ -1,24 +1,32 @@
 import { IProduct } from '../../types';
-
+import { IEvents } from '../base/Events';
 export class MainCatalog {
 
     private detailedProduct: IProduct | null = null;
     private listProduct: IProduct[] = [];
+    
+    constructor(protected events: IEvents) {}
 
     setListProduct(newList: IProduct[]) {
         this.listProduct = newList;
+        this.events.emit('catalog:changed');
     }
 
     getListProduct(): IProduct[] {
+        this.events.emit('basket:updated');
         return [...this.listProduct];
     }
 
     setDetailedProduct(id: string) {
         const check = this.getProductById(id);
-        if (check)
+        if (check) {
             this.detailedProduct = check;
-        else
+            this.events.emit('card:select');
+        }
+        else {
             console.log('Продукт отсутствует в списке')
+            return;
+        }
     }
 
     getDetailedProduct(): IProduct | null {

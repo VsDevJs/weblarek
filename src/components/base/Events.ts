@@ -19,7 +19,7 @@ export interface IEvents {
  * или слушать события по шаблону например
  */
 export class EventEmitter implements IEvents {
-    _events: Map<EventName, Set<Subscriber>>;
+    _events: Map<EventName, Set<Subscriber>>; // Тут лежит имя события,  сет с обработчиками;
 
     constructor() {
         this._events = new Map<EventName, Set<Subscriber>>();
@@ -51,7 +51,7 @@ export class EventEmitter implements IEvents {
      * Инициировать событие с данными
      */
     emit<T extends object>(eventName: string, data?: T) {
-        this._events.forEach((subscribers, name) => {
+        this._events.forEach((subscribers, name) => { // Name - ключ , Sub - set с событиями;
             if (name === '*') subscribers.forEach(callback => callback({
                 eventName,
                 data
@@ -61,6 +61,9 @@ export class EventEmitter implements IEvents {
             }
         });
     }
+
+    // 1. Берём перебираем события
+    // 2. В нём берём подписки и имена
 
     /**
      * Слушать все события
