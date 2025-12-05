@@ -13,7 +13,6 @@ export class MainCatalog {
     }
 
     getListProduct(): IProduct[] {
-        this.events.emit('basket:updated');
         return [...this.listProduct];
     }
 

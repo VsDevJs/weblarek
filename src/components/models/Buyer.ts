@@ -1,14 +1,15 @@
 
 import { IBuyer, TFormErrors } from '../../types';
-
+import { IEvents } from '../base/Events';
 export class Buyer {
+  private payment: IBuyer['payment'] = '';
+  private email: string = '';
+  private phone: string = '';
+  private address: string = '';
 
   constructor(
-    private payment: IBuyer['payment'] = '',
-    private email: string = '',
-    private phone: string = '',
-    private address: string = ''
-  ) { }
+    private events:IEvents,
+  ) {}
 
   setBuyerData(data: Partial<IBuyer>) {
     for (const el in data) {
@@ -52,5 +53,6 @@ export class Buyer {
     this.email = '';
     this.phone = '';
     this.address = '';
+    this.events.emit('buyer:clear');
   }
 }

@@ -18,7 +18,7 @@ export class CardBasket extends Card<ICardBasket> {
     }
   }
 
-  set id(val: number) {
+  set index(val: number) {
     if (val && this.itemIndex) {
       this.itemIndex.textContent = val.toString();
     }

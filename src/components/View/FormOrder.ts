@@ -11,33 +11,40 @@ export class FormOrder extends FormBase {
   constructor(events: IEvents, element: HTMLElement) {
 
     super(events, element);
-
+    const form = element as HTMLFormElement;
     this.inputCard = ensureElement<HTMLButtonElement>("button[name='card']", this.container);
     this.inputCash = ensureElement<HTMLButtonElement>('button[name="cash"]', this.container);
     this.addressOrder = ensureElement<HTMLInputElement>('input[name="address"]', this.container);
 
     this.inputCard.addEventListener('click', (event) => {
-      const target = event.target;
-      if (target)
-        events.emit('formOrder:listener', { target, element: this.container });
+        const target = event.target as HTMLButtonElement;
+        this.orderButtonStatus(target.name)
+        if(target.name)
+          events.emit('formOrder:listener', { formName:form.name, buttonName: target.name });
+        // events.emit('formOrder:listener', { target, element: this.container });
+    
     })
 
     this.inputCash.addEventListener('click', (event) => {
       const target = event.target as HTMLButtonElement;
-      if (target)
-        events.emit('formOrder:listener', { target, element: this.container });
+      this.orderButtonStatus(target.name)
+      if (target.name)
+        events.emit('formOrder:listener', { formName:form.name, buttonName: target.name, value:target.value });
     })
 
     this.addressOrder.addEventListener('input', (event) => {
-      const target = event.target as HTMLButtonElement;
-      if (target)
-        events.emit('formOrder:listener', { target, element: this.container });
+      const target = event.target as HTMLInputElement;
+      if (target.name)
+        events.emit('formOrder:listener', { formName:form.name, buttonName: target.name, value:target.value });
     })
   }
 
-  orderButtonStatus(button: HTMLElement) {
-    this.inputCash.classList.remove('button_alt-active');
-    this.inputCard.classList.remove('button_alt-active')
-    button.classList.add('button_alt-active');
+  orderButtonStatus(name:string) {
+    [this.inputCash, this.inputCard].forEach(el => {
+      if(name == el.name)
+        el.classList.add('button_alt-active')
+      else 
+        el.classList.remove('button_alt-active')
+    })
   }
 }

@@ -10,15 +10,18 @@ export class FormBase extends Component<void> {
   constructor(protected events: IEvents, element: HTMLElement) {
     super(element);
     this.events = events;
+    const form = element as HTMLFormElement;
+
     this.buttonForm = ensureElement<HTMLButtonElement>('button[type="submit"]', this.container);
     this.formErrors = ensureElement<HTMLSpanElement>('.form__errors', this.container);
 
     this.buttonForm.addEventListener('click', (event) => {
       event.preventDefault();
-      const target = event.target as HTMLButtonElement;
-      if (target)
-        events.emit('form:next', { target, element: this.container });
 
+      const target = event.target as HTMLInputElement;
+      if(target.name != null) {
+        events.emit('form:next', { formName:form.name });
+      }
     })
   }
 

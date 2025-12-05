@@ -4,7 +4,7 @@ import { BasketProduct } from './components/models/BasketProduct.ts';
 import { MainCatalog } from './components/models/MainCatalog.ts';
 import { ShopApi } from './components/models/ShopApi.ts';
 import { Api } from './components/base/Api.ts';
-import { API_URL } from './utils/constants.ts';
+import { API_URL, CDN_URL } from './utils/constants.ts';
 import { ensureElement, cloneTemplate } from './utils/utils.ts';
 
 import { Modal } from './components/View/Modal.ts';
@@ -15,9 +15,9 @@ import { Gallery } from './components/View/Gallery.ts';
 import { CardPreview } from './components/View/CardPreview.ts';
 import { CardBasket } from './components/View/CardBasket.ts';
 import { Basket } from './components/View/Basket.ts';
-import { IProduct, TPayment, FormEventPayload } from './types';
+import { IProduct, FormEventPayload } from './types';
 import { FormOrder } from './components/View/FormOrder.ts';
-import { FormContacts } from './components/View/formContacts.ts';
+import { FormContacts } from './components/View/FormContacts.ts';
 import { OrderSuccess } from './components/View/OrderSuccess.ts';
 
 // ____________________________________API_______________________________________________
@@ -70,18 +70,12 @@ const header = new Header(events, headerTemplate);
 
 const gallery = new Gallery(ensureElement('.page__wrapper'));
 
-// _____________ Функция Guard для проврки target.name в проверке формы___________________
-
-function isTPayment(value: string): value is TPayment {
-  return value === 'card' || value === 'cash' || value === '';
-}
-
 // _________________________ Получение данных по api______________________________________
 
 (async () => {
   try {
     const response = await shopApi.getProduct();
-    mainCatalog.setListProduct(response.items);
+    mainCatalog.setListProduct(response.items.map(el => ({ ...el, image: `${CDN_URL + el.image}` })));
     console.log('Выыгруженные товары через с сервера', mainCatalog.getListProduct());
   } catch (err) {
     console.log('Произошла ошибка при выгрузке товаров', err);
@@ -108,8 +102,8 @@ events.on('card:select', (item: IProduct) => {
   const cardPreview = new CardPreview(cloneTemplate('#card-preview'), {
     onClick: () => events.emit('card:AddBasket', item),
   });
-  let status = item.price == null ? null : basketProduct.existenceProduct(item.id) ? true : false;
-  cardPreview.UpdateCardButton(status);
+  const status = item.price == null ? null : basketProduct.existenceProduct(item.id);
+  cardPreview.updateCardButton(status);
   modal.modalContent = cardPreview.render(item);
   modal.modelOpen();
 });
@@ -139,7 +133,7 @@ events.on('basket:updated', () => {
     });
 
     return card.render({
-      id: (idx + 1).toString(),
+      index: (idx + 1).toString(),
       title: item.title,
       price: item.price,
     });
@@ -155,8 +149,7 @@ events.on('basket:updated', () => {
 // ________________________________________Событие для открытия basket___________________________________
 
 events.on('basket:open', () => {
-  if (basketProduct.countProduct() == 0)
-    basketProduct.clearBasket();
+  modal.modalContent = basket.render();
   modal.modelOpen();
 });
 
@@ -170,24 +163,22 @@ events.on('cardBasket:delete', (item: IProduct) => {
 events.on('formOrder:listener', (payload: FormEventPayload) => {
 
   if (!payload) return;
-  const { target, element } = payload;
+  const { formName, buttonName, value } = payload;
 
-  if (formOrderTemplate === element) {
-    if (target instanceof HTMLButtonElement && isTPayment(target.name)) {
-      const payment = target.name;
-      formOrder.orderButtonStatus(target);
-      buyer.setBuyerData({ payment: payment });
+  if ('order' === formName) {
+    if (buttonName == 'cash' || buttonName == 'card') {
+      buyer.setBuyerData({ payment: buttonName });
     }
-    else if (target instanceof HTMLInputElement) {
-      buyer.setBuyerData({ address: target.value });
+    else if (buttonName == 'address') {
+      buyer.setBuyerData({ [buttonName]: value });
     }
     const errors = buyer.validate();
     formOrder.setError([errors.payment, errors.address]);
   }
 
-  else if (formContactsTemplate == element) {
-    if (target instanceof HTMLInputElement) {
-      buyer.setBuyerData({ [target.name]: target.value });
+  else if ('contacts' == formName) {
+    if (buttonName == 'email' || buttonName == 'phone') {
+      buyer.setBuyerData({ [buttonName]: value });
     }
     const errors = buyer.validate();
     formContacts.setError([errors.phone, errors.email]);
@@ -199,22 +190,33 @@ events.on('formOrder:listener', (payload: FormEventPayload) => {
 events.on('formOrder:open', () => {
   modal.modalContent = formOrder.render();
 })
-
 // _________________________________Общее событие кнопки форм formContacts и formOrder________________________________________
 
 events.on('form:next', (payload: FormEventPayload) => {
-  console.log(payload);
-  if (!payload) return;
 
-  const { target, element } = payload;
+  const { formName } = payload;
 
-  if (element == formContactsTemplate) {
+  if (formName == 'contacts') {
     formSuccess.render({ orderDescription: basketProduct.calculatePrice() });
-    basketProduct.clearBasket();
-    modal.modalContent = formSuccess.render();
+
+    (async () => {
+      try {
+        await shopApi.createOrder( // Сюда промис возвращается;
+          {
+            ...buyer.getBuyerData(),
+            total: basketProduct.calculatePrice(),
+            items: basketProduct.getlistProduct().map(el => el.id),
+          });
+        basketProduct.clearBasket();
+        modal.modalContent = formSuccess.render();
+      }
+      catch (err) {
+        console.log('Что-то пошло не так', err)
+      }
+    })();
   }
 
-  else if (element == formOrderTemplate) {
+  else if (formName == 'order') {
     modal.modalContent = formContacts.render();
   }
 })

@@ -40,26 +40,22 @@ export interface IRequestOrder extends IBuyer {
     items: string[],
 }
 
-
 // Тип header. Counter это сеттер
 export interface IHeaderData {
     counter:number;
 }
 
 // Тип для окна подтверждения
-
 export interface IOrderSuccess {
     orderDescription:number;
 }
 
 // Тип модального окна
-
 export interface IModal {
     modalContent:HTMLElement;
 }
 
 // Тип Gallery
-
 export interface IGalleryData {
     catalog:HTMLElement[];
 }
@@ -69,12 +65,6 @@ export interface IBasket {
     price:number;
 }
 
-export interface IBaseForm {
-    formError:string[];
-}
-
-// В объекте Card сделали такую защиту  class Card<T> extends Component<T & ICard> , поэтому лишнии свойства ненужны
-
 //Тип данных для объекта с ошибками. Ключи полностью соответствуют IBuyer, а значения валидирующим функциям
 export type TFormErrors = Record<keyof IBuyer, (val: string) => string>;
 
@@ -82,25 +72,21 @@ export type TFormErrors = Record<keyof IBuyer, (val: string) => string>;
 export type ICard = Pick<IProduct, 'title' | 'price'>;
 
 // Тип для CardByCatalog
-export type ICardByCatalog = Pick<IProduct, 'image' | 'category'>; // + title + price
+export type ICardByCatalog = Pick<IProduct, 'image' | 'category'>;
 export interface ICardAction {
     onClick?: () => void;
 }
 
 //Типизация для ICardBasket
-export type ICardBasket = Pick<IProduct, 'id'>  // + title + price
+
+export type ICardBasket = Pick<IProduct & { index: string }, 'index'> 
 
 // Типизация для CardPreview
-export type ICardPreview = Pick<IProduct, 'description' | 'category' | 'image'> // + title + price
+export type ICardPreview = Pick<IProduct, 'description' | 'category' | 'image'>
 
 // Типизация для формы
-export type FormEventPayload = {
-    target: HTMLElement | null;
-    element: HTMLFormElement;
+export type FormEventPayload = {    
+    formName?: string;
+    buttonName?: string;
+    value?:string;
 };
-
-export interface IFormContacts {
-
-}
-
-// type Category = keyof typeof categoryMap;

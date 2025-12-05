@@ -24,7 +24,6 @@ export class Basket extends Component<IBasket> {
   }
 
   set catalog(val: HTMLElement[]) {
-    console.log(val);
     this.catalogBasket.replaceChildren(...val);
   }
 

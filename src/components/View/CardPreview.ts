@@ -28,7 +28,7 @@ export class CardPreview extends Card<ICardPreview> {
             this.cardDescription.textContent = val;
     }
 
-    UpdateCardButton(val: boolean | null) {
+    updateCardButton(val: boolean | null) {
         val == null ? (this.cardButton.disabled = true, this.cardButton.textContent = 'Недоступно') : val ? this.cardButton.textContent = 'Удалить из корзины' : this.cardButton.textContent = 'Добавить в корзину';
     }
 
